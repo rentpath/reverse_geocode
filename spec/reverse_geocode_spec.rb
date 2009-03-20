@@ -124,6 +124,13 @@ describe "ReverseGeocode" do
     end
   end
 
+  describe '#placemark_by_accuracy' do
+    it 'should return the placemark with the given accuracy' do
+      (@reverse_geocode.send(:placemark_by_accuracy, 3)/'AddressDetails'/'Accuracy').to_i.should == 3
+
+    end
+  end
+
   describe "without a latitude or longitude" do
     it "should raise an ArgumentError" do
       lambda { ReverseGeocode.new(nil, 1) }.should raise_error(ArgumentError)
@@ -153,7 +160,7 @@ describe "ReverseGeocode" do
           @reverse_geocode.stub!(:parse_json).and_return(error_json(code))
         end
 
-        it "should raise a GeocodeError" do
+        it "should raise a GeocodeError with #{message}" do
           lambda {
             @reverse_geocode.send(:handle_response)
           }.should raise_error(ReverseGeocode::GeocodeError, "#{code}: #{message}")

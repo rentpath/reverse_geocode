@@ -3,6 +3,8 @@ require 'uri'
 require 'json'
 
 class ReverseGeocode
+  GOOGLE_URI = "http://maps.google.com/maps/geo"
+
   class GeocodeError < StandardError
     ERRORS = {
       400 => "Bad Request",
@@ -16,7 +18,7 @@ class ReverseGeocode
     }
 
     def initialize(error_code)
-      super("#{error_code}: #{ERRORS[error_code]}")
+      super("#{error_code}: #{ERRORS[error_code] || 'Unknown Error'}")
     end
   end
 
@@ -49,17 +51,17 @@ class ReverseGeocode
   end
 
   def city
-    @city ||= placemark[1]/'AddressDetails'/'Country'/'AdministrativeArea'/'Locality'/'LocalityName'
+    @city ||= (placemark_by_accuracy(4)/'AddressDetails'/'Country'/'AdministrativeArea'/'AddressLine').first
   end
 
   def county
-    @county ||= (placemark[3]/'AddressDetails'/'Country'/'AdministrativeArea'/'AddressLine').first
+    @county ||= (placemark_by_accuracy(3)/'AddressDetails'/'Country'/'AdministrativeArea'/'AddressLine').first
   end
 
   private
 
   def first_placemark
-    placemark[0]
+    placemark_by_accuracy(8)
   end
 
   def first_administrative_area
@@ -70,8 +72,12 @@ class ReverseGeocode
     (response/"Placemark")
   end
 
+  def placemark_by_accuracy(accuracy)
+    placemark.detect { |x| (x/'AddressDetails'/'Accuracy').to_i == accuracy.to_i }
+  end
+
   def reverse_geocode_uri
-    URI.parse("http://maps.google.com/maps/geo?ll=#{URI.escape(lat.to_s)},#{URI.escape(long.to_s)}&output=json")
+    URI.parse("#{GOOGLE_URI}?ll=#{URI.escape(lat.to_s)},#{URI.escape(long.to_s)}")
   end
 
   def parse_json
@@ -89,4 +95,10 @@ end
 
 class Hash
   alias_method :/, :[]
+end
+
+class NilClass
+  def /(other)
+    raise ArgumentError, "Unknown method '/' called on nil with #{other.inspect}. Maybe you were looking for a Hash?"
+  end
 end
