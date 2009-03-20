@@ -2,9 +2,15 @@ require 'net/http'
 require 'uri'
 require 'json'
 
+# ReverseGeocode provides an simple API for accessing reverse geocode data for
+# a given geocode using the google maps geocoding API.
+#
+# Examples:
+#   ReverseGeocode.new(30.0098974, -81.3876544).city # => "St Augustine"
 class ReverseGeocode
   GOOGLE_URI = "http://maps.google.com/maps/geo"
 
+  # Used to raise Google API errors
   class GeocodeError < StandardError
     ERRORS = {
       400 => "Bad Request",
@@ -24,12 +30,14 @@ class ReverseGeocode
 
   class << self; attr_accessor :api_key; end
 
-  attr_reader :lat, :long
+  # Creates a new reverse geocode object.
   def initialize(lat, long)
     raise ArgumentError, "Latitude and longitude required" unless lat && long
     @lat, @long = lat, long
   end
+  attr_reader :lat, :long
 
+  # The raw response hash from the reverse geocode request
   def response
     @response ||= handle_response
   end
@@ -93,11 +101,14 @@ class ReverseGeocode
   end
 end
 
+# Hash.[] is aliased to '/' to provide xpath-like access into the response
+# hash
 class Hash
   alias_method :/, :[]
 end
 
 class NilClass
+  # Raises a more useful error when nil#/ is called.
   def /(other)
     raise ArgumentError, "Unknown method '/' called on nil with #{other.inspect}. Maybe you were looking for a Hash?"
   end
