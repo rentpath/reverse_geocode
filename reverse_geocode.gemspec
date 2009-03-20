@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tommy Campbell & ReinH"]
   #s.autorequire = %q{reverse_geocode}
-  s.add_dependency ('json', '>= 1.1.3')
+  s.add_dependency('json', '>= 1.1.3')
   s.date = %q{2009-03-20}
   s.description = %q{A gem that provides Reverse Geocoding using the Google Maps API}
   s.email = %q{tommycampbell@mindspring.com}
