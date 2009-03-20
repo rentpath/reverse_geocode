@@ -3,13 +3,13 @@ require 'rake/gempackagetask'
 require 'rubygems/specification'
 require 'date'
 require 'spec/rake/spectask'
+require 'rake/rdoctask'
 
 GEM = "reverse_geocode"
-GEM_VERSION = "0.0.1"
-AUTHOR = "Your Name"
-EMAIL = "Your Email"
-HOMEPAGE = "http://example.com"
-SUMMARY = "A gem that provides..."
+GEM_VERSION = "0.0.3"
+AUTHORS = ["Tommy Campbell", "Rein Henrichs"]
+EMAIL = "tommycampbell@mindspring.com"
+SUMMARY = "A gem that provides Reverse Geocoding using the Google Maps API"
 
 spec = Gem::Specification.new do |s|
   s.name = GEM
@@ -19,26 +19,27 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README", "LICENSE", 'TODO']
   s.summary = SUMMARY
   s.description = s.summary
-  s.author = AUTHOR
+  s.authors = AUTHORS
   s.email = EMAIL
-  s.homepage = HOMEPAGE
-  
-  # Uncomment this to add a dependency
-  # s.add_dependency "foo"
-  
+
+  s.add_dependency('json', '>= 1.1.3')
+
   s.require_path = 'lib'
   s.autorequire = GEM
-  s.files = %w(LICENSE README Rakefile TODO) + Dir.glob("{lib,spec}/**/*")
+  s.files = %w(LICENSE README Rakefile) + Dir.glob("{lib,spec}/**/*")
 end
 
 task :default => :spec
 
-desc "Run specs"
 Spec::Rake::SpecTask.new do |t|
   t.spec_files = FileList['spec/**/*_spec.rb']
   t.spec_opts = %w(-fs --color)
 end
 
+Rake::RDocTask.new { |rdoc|
+  rdoc.rdoc_dir = 'doc'
+  rdoc.rdoc_files.include('lib/*.rb')
+}
 
 Rake::GemPackageTask.new(spec) do |pkg|
   pkg.gem_spec = spec
